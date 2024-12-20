@@ -5,6 +5,9 @@ import requests
 from bs4 import BeautifulSoup
 import re
 from nltk.corpus import wordnet
+import os
+
+TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 
 # Enable logging
 logging.basicConfig(
@@ -114,7 +117,7 @@ async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     return ConversationHandler.END
 
 def main():
-    application = ApplicationBuilder().token("<YOUR_TELEGRAM_BOT_TOKEN>").build()
+    application = ApplicationBuilder().token("TOKEN>").build()
 
     conv_handler = ConversationHandler(
         entry_points=[CommandHandler("start", start)],
