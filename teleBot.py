@@ -1,5 +1,5 @@
 import logging
-from telegram import Update, ReplyKeyboardMarkup
+from telegram import Update, Bot, ReplyKeyboardMarkup
 from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, filters, ConversationHandler, ContextTypes
 import requests
 from bs4 import BeautifulSoup
@@ -45,6 +45,15 @@ def fetch_keywords_from_url(url, keywords):
     except Exception as e:
         logger.error(f"Error parsing URL: {e}")
         return []
+
+# Delete webhook if set
+def delete_webhook():
+    bot = Bot(TOKEN)
+    try:
+        bot.delete_webhook()
+        print("Webhook deleted successfully.")
+    except Exception as e:
+        print(f"Error deleting webhook: {e}")
 
 # Conversation handlers
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -117,8 +126,13 @@ async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     return ConversationHandler.END
 
 def main():
+    # Delete any webhook if set (to avoid conflicts)
+    delete_webhook()
+
+    # Create the bot application
     application = ApplicationBuilder().token(TOKEN).build()
 
+    # Set up conversation handler
     conv_handler = ConversationHandler(
         entry_points=[CommandHandler("start", start)],
         states={
@@ -133,8 +147,10 @@ def main():
         fallbacks=[CommandHandler("cancel", cancel)],
     )
 
+    # Add the conversation handler to the application
     application.add_handler(conv_handler)
 
+    # Start the bot
     application.run_polling()
 
 if __name__ == "__main__":
